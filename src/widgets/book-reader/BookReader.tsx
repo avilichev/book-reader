@@ -6,7 +6,7 @@ import { PdfReader } from 'features/pdf-reader';
 function BookReader() {
   return (
     <BookReaderRoot>
-      <EpubReader />
+      <EpubReader url="https://gerhardsletten.github.io/react-reader/files/alice.epub" />
       <PdfReader />
     </BookReaderRoot>
   );
