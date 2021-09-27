@@ -7,7 +7,7 @@ function BookReader() {
   return (
     <BookReaderRoot>
       <EpubReader url="https://gerhardsletten.github.io/react-reader/files/alice.epub" />
-      <PdfReader />
+      <PdfReader url="" />
     </BookReaderRoot>
   );
 }
