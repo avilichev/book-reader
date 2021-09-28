@@ -1,7 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
 import Epub, { Book, Rendition } from 'epubjs';
 import { ReaderProps } from 'shared/types';
+import { ArrowBack, ArrowForward } from 'shared/ui';
+import { BookActionButton, BookContainer, BookPaper } from 'entities/books';
 
 export interface EpubReaderProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -51,35 +52,17 @@ const EpubReader = React.forwardRef<HTMLDivElement, EpubReaderProps>(
     };
 
     return (
-      <EpubReaderRoot {...other} ref={ref}>
-        <EpubReaderActionBar>
-          <button onClick={handlePrev}>Prev</button>
-          <button onClick={handleNext} style={{ marginLeft: 10 }}>
-            Next
-          </button>
-        </EpubReaderActionBar>
-        <EpubReaderContainer ref={containerRef} />
-      </EpubReaderRoot>
+      <BookContainer {...other} ref={ref}>
+        <BookActionButton onClick={handlePrev}>
+          <ArrowBack />
+        </BookActionButton>
+        <BookPaper ref={containerRef} />
+        <BookActionButton onClick={handleNext}>
+          <ArrowForward />
+        </BookActionButton>
+      </BookContainer>
     );
   },
 );
-
-const EpubReaderRoot = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 720px;
-  margin: 50px auto;
-`;
-
-const EpubReaderActionBar = styled.div`
-  display: flex;
-`;
-
-const EpubReaderContainer = styled.div`
-  flex: 0 0 auto;
-  width: 100%;
-  height: 1024px;
-  border: 1px solid #999999;
-`;
 
 export default EpubReader;
