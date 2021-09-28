@@ -1,6 +1,7 @@
 import React from 'react';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
-import { PDFDocumentProxy } from 'pdfjs-dist/types/display/api';
+import { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/display/api';
+import { PageViewport } from 'pdfjs-dist/types/display/display_utils';
 import { ReaderProps } from 'shared/types';
 import { ArrowBack, ArrowForward } from 'shared/ui';
 import { BookActionButton, BookContainer, BookPaper } from 'entities/books';
@@ -23,33 +24,51 @@ const PdfReader = React.forwardRef<HTMLDivElement, PdfReaderProps>(
     const paperRef = React.useRef<HTMLDivElement>(null);
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
     const pdfRef = React.useRef<PDFDocumentProxy>();
+    const templeViewRef = React.useRef<PageViewport>();
+    const viewportRef = React.useRef<PageViewport>();
+    const renderingRef = React.useRef(false);
+    const pageRef = React.useRef<PDFPageProxy>();
 
-    const renderPage = React.useCallback(() => {
+    const resizePage = () => {
+      if (!renderingRef.current && pageRef.current && templeViewRef.current) {
+        const scale = Math.min(
+          (paperRef?.current?.clientHeight || window.innerHeight) /
+            templeViewRef.current.height,
+          (paperRef?.current?.clientWidth || window.innerWidth) /
+            templeViewRef.current.width,
+        );
+
+        viewportRef.current = pageRef.current.getViewport({ scale });
+
+        if (canvasRef.current) {
+          const canvasContext = canvasRef.current.getContext('2d');
+          canvasRef.current.height = viewportRef.current.height;
+          canvasRef.current.width = viewportRef.current.width;
+
+          renderingRef.current = true;
+          pageRef.current
+            .render({
+              canvasContext: canvasContext as CanvasRenderingContext2D,
+              viewport: viewportRef.current,
+            })
+            .promise.finally(() => {
+              renderingRef.current = false;
+            });
+        }
+      }
+    };
+
+    const handleWindowResize = () => {
+      resizePage();
+    };
+
+    const renderPage = React.useCallback(async () => {
       if (pdfRef.current) {
-        pdfRef.current.getPage(currentPage).then((page) => {
-          const templeView = page.getViewport({ scale: DEFAULT_SCALE });
-
-          const width = paperRef?.current?.clientWidth || window.innerWidth;
-          const height = paperRef?.current?.clientHeight || window.innerHeight;
-
-          const scale = Math.min(
-            height / templeView.height,
-            width / templeView.width,
-          );
-          const viewport = page.getViewport({ scale });
-
-          if (canvasRef.current) {
-            const canvasContext = canvasRef.current.getContext('2d');
-            canvasRef.current.height = viewport.height;
-            canvasRef.current.width = viewport.width;
-
-            const renderContext = {
-              canvasContext,
-              viewport,
-            };
-            page.render(renderContext as any);
-          }
+        pageRef.current = await pdfRef.current.getPage(currentPage);
+        templeViewRef.current = pageRef.current.getViewport({
+          scale: DEFAULT_SCALE,
         });
+        resizePage();
       }
     }, [currentPage]);
 
@@ -66,6 +85,13 @@ const PdfReader = React.forwardRef<HTMLDivElement, PdfReaderProps>(
 
     React.useEffect(() => {
       initReader();
+    }, []);
+
+    React.useEffect(() => {
+      window.addEventListener('resize', handleWindowResize);
+      return () => {
+        window.removeEventListener('resize', handleWindowResize);
+      };
     }, []);
 
     React.useEffect(() => {
