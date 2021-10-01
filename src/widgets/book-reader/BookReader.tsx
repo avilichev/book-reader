@@ -5,12 +5,25 @@ import { PdfReader } from 'features/pdf-reader';
 
 export type MimeType = 'epub' | 'pdf';
 
+const urlMap = {
+  epub: '/books/33540550.epub',
+  pdf: '/books/33540550.pdf',
+};
+
+const readerMap = {
+  epub: EpubReader,
+  pdf: PdfReader,
+};
+
 function BookReader() {
   const [mimeType, setMimeType] = React.useState<MimeType>('pdf');
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setMimeType(event.target.value as MimeType);
   };
+
+  const url = urlMap[mimeType];
+  const Reader = readerMap[mimeType];
 
   return (
     <BookWrapper>
@@ -25,8 +38,7 @@ function BookReader() {
         <option value="epub">epub</option>
         <option value="pdf">pdf</option>
       </select>
-      {mimeType === 'epub' && <EpubReader url="/books/33540550.epub" />}
-      {mimeType === 'pdf' && <PdfReader url="/books/33540550.pdf" />}
+      <Reader url={url} />
     </BookWrapper>
   );
 }
