@@ -11,13 +11,12 @@ const DEFAULT_GAPS = 2;
 const DEFAULT_LIST_BY = 2;
 
 export class FB2 {
-  book?: HTMLElement;
-  container: HTMLElement;
-  url: string;
-  pageCount = FIRST_PAGE;
-  currentPage = FIRST_PAGE;
-
+  private book?: HTMLElement;
+  private container: HTMLElement;
+  private url: string;
   private parser: FB2Parser;
+  private pageCount = FIRST_PAGE;
+  private currentPage = FIRST_PAGE;
   private gapWidth = DEFAULT_GAP_WIDTH;
   private gaps = DEFAULT_GAPS;
   private listBy = DEFAULT_LIST_BY;
