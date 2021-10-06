@@ -1,13 +1,16 @@
 import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import { Layout } from 'shared/ui';
-import { BookReader } from 'widgets/book-reader';
+import { Pages } from 'pages';
 
-export default function App() {
+export function App() {
   return (
-    <Layout>
-      <Layout.Content>
-        <BookReader />
-      </Layout.Content>
-    </Layout>
+    <BrowserRouter>
+      <Layout>
+        <Layout.Content>
+          <Pages />
+        </Layout.Content>
+      </Layout>
+    </BrowserRouter>
   );
 }
