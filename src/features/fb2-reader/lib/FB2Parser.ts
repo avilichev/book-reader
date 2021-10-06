@@ -25,42 +25,37 @@ export class FB2Parser {
 
   private parseXML(xmlStr: string) {
     if (window.DOMParser) {
-      const document = new window.DOMParser().parseFromString(
-        xmlStr,
-        'text/xml',
-      );
-      return this.convertToHTML(document);
-    } else {
-      return null;
+      try {
+        this.xml = new window.DOMParser().parseFromString(xmlStr, 'text/xml');
+        return this.convertToHTML(this.xml);
+      } catch (err) {
+        console.error(err);
+      }
     }
   }
 
   private async convertToHTML(xml: Document) {
-    this.xml = xml;
-
     if (this.xsl) {
       return this.xsltTransform(xml, this.xsl);
     }
 
-    return http
-      .get('/reader.xsl')
-      .then((res) =>
-        this.xsltTransform(
-          xml,
+    try {
+      this.xsl = await http
+        .get('/reader.xsl')
+        .then((res) =>
           new window.DOMParser().parseFromString(res.data, 'text/xml'),
-        ),
-      );
+        );
+      return this.xsltTransform(xml, this.xsl);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   private xsltTransform(xml: Document, xsl: Document) {
-    this.xsl = xsl;
-
     if (document.implementation) {
       const xsltProcessor = new XSLTProcessor();
       xsltProcessor.importStylesheet(xsl);
       return xsltProcessor.transformToFragment(xml, document);
     }
-
-    return null;
   }
 }

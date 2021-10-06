@@ -21,16 +21,31 @@ const FB2Reader = React.forwardRef<HTMLDivElement, FB2ReaderProps>(
           container: containerRef.current,
           url,
         });
+        return () => {
+          fb2Ref.current?.destroy();
+        };
       }
     }, [url]);
 
+    const handlePrev = () => {
+      if (fb2Ref.current) {
+        fb2Ref.current.prev();
+      }
+    };
+
+    const handleNext = () => {
+      if (fb2Ref.current) {
+        fb2Ref.current.next();
+      }
+    };
+
     return (
       <BookContainer {...other} ref={ref}>
-        <BookActionButton>
+        <BookActionButton onClick={handlePrev}>
           <ArrowBack />
         </BookActionButton>
         <BookPaper ref={containerRef} />
-        <BookActionButton>
+        <BookActionButton onClick={handleNext}>
           <ArrowForward />
         </BookActionButton>
       </BookContainer>
