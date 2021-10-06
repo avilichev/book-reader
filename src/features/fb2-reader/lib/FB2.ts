@@ -60,6 +60,7 @@ export class FB2 {
 
   destroy() {
     window.removeEventListener('resize', this.handleResize);
+    this.container.innerHTML = '';
   }
 
   private calcDimensions() {
@@ -73,9 +74,7 @@ export class FB2 {
     this.gapWidth = parseInt(styles.columnGap, 10);
     this.gaps = parseInt(styles.columnCount, 10);
     this.listBy = this.gapWidth <= 40 ? 1 : 2;
-
     this.canvasWidth = rect.width / this.listBy;
-
     this.pageWidth = this.canvasWidth - this.gapWidth / this.gaps;
     this.pageStepWidth = this.pageWidth;
 
